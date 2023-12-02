@@ -37,6 +37,7 @@ class PLSleepModel(LightningModule):
         self.duration = duration
         self.validation_step_outputs: list = []
         self.__best_loss = np.inf
+        self.__best_score = 0.0
 
     def forward(
         self,
@@ -109,6 +110,12 @@ class PLSleepModel(LightningModule):
             torch.save(self.model.state_dict(), "best_model.pth")
             print(f"Saved best model {self.__best_loss} -> {loss}")
             self.__best_loss = loss
+
+        if score > self.__best_score:
+            val_pred_df.write_csv("val_pred_score_df.csv")
+            torch.save(self.model.state_dict(), "best_model_score.pth")
+            print(f"Saved best model {self.__best_score} -> {score}")
+            self.__best_score = score
 
         self.validation_step_outputs.clear()
 
